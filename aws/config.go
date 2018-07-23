@@ -26,7 +26,8 @@ type Config struct {
 	WaitTimeSeconds int64   `env:"AWS_WAIT_TIME_SECONDS"`
 	QueueName       string  `env:"AWS_QUEUE_NAME"`
 	QueueUrl        *string `env:"AWS_QUEUE_URL"`
-	TopicArn        *string `env:"AWS_TOPIC_ARN"`
+	QueueArn        *string `env:"AWS_QUEUE_ARN"` // example, "arn:aws:sqs:eu-west-2:123456789:my-queue"
+	TopicArn        *string `env:"AWS_TOPIC_ARN"` // example, "arn:aws:sns:eu-west-2:123456789:my-topic"
 	Credentials     *Credentials
 }
 

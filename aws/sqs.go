@@ -107,7 +107,7 @@ func NewConsumer(conf Config, newCB MessageWrapper, sess *session.Session) (goq.
 	if queueURL, err = createQueue(sc, conf); err != nil {
 		return nil, err
 	}
-	if err := subscribeQueue(sess, conf.TopicArn, queueURL); err != nil {
+	if err := subscribeQueue(sess, &conf); err != nil {
 		log.Errorf("Failed to subscribe queue %s to topic: %+v", *queueURL, err)
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func getQueue(conf Config, sess *session.Session, sc *sqs.SQS) (*string, error) 
 	if conf.TopicArn == nil {
 		return out.QueueUrl, nil
 	}
-	if err := subscribeQueue(sess, conf.TopicArn, out.QueueUrl); err != nil {
+	if err := subscribeQueue(sess, &conf); err != nil {
 		log.Errorf("Failed to subscribe queue %s to topic: %+v", *out.QueueUrl, err)
 		return nil, err
 	}
@@ -349,16 +349,16 @@ func createQueue(sc *sqs.SQS, conf Config) (*string, error) {
 	return out.QueueUrl, nil
 }
 
-func subscribeQueue(sess *session.Session, topicArn, queueURL *string) error {
+func subscribeQueue(sess *session.Session, conf *Config) error {
 	topic := sns.New(sess)
 	out, err := topic.Subscribe(&sns.SubscribeInput{
-		TopicArn: topicArn,
+		TopicArn: conf.TopicArn,
 		Protocol: aws.String("sqs"),
-		Endpoint: queueURL,
+		Endpoint: conf.QueueArn,
 	})
 	if err != nil {
 		return err
 	}
-	log.Infof("Succesfully subscribed queue %s to topic %s -> subscription Arn: %s", *queueURL, *topicArn, *out.SubscriptionArn)
+	log.Infof("Succesfully subscribed queue %s to topic %s -> subscription Arn: %s", *conf.QueueArn, *conf.TopicArn, *out.SubscriptionArn)
 	return nil
 }
